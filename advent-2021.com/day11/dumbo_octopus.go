@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"advent-2021.com/collections/stack"
 )
 
 func DumboOctopus(input string) int {
@@ -102,45 +100,45 @@ func DumboOctopus_Part2(input string) int {
 }
 
 func CheckSurroundsValues(start []int, grid map[int][]int, flashes map[string]int) {
-	pointsToCheck := stack.New()
+	var pointsToCheck Stack
 	pointsToCheck.Push(start)
 	for {
 		if pointsToCheck.Len() == 0 {
 			break
 		}
 
-		p := pointsToCheck.Pop().([]int) // pointer
+		p, _ := pointsToCheck.Pop() // pointer
 		if p[0]-1 >= 0 {
 			if p[1]-1 >= 0 {
-				CheckEnergyValue([]int{p[0] - 1, p[1] - 1}, grid, flashes, pointsToCheck)
+				CheckEnergyValue([]int{p[0] - 1, p[1] - 1}, grid, flashes, &pointsToCheck)
 			}
-			CheckEnergyValue([]int{p[0] - 1, p[1]}, grid, flashes, pointsToCheck)
+			CheckEnergyValue([]int{p[0] - 1, p[1]}, grid, flashes, &pointsToCheck)
 			if p[1]+1 < len(grid[0]) {
-				CheckEnergyValue([]int{p[0] - 1, p[1] + 1}, grid, flashes, pointsToCheck)
+				CheckEnergyValue([]int{p[0] - 1, p[1] + 1}, grid, flashes, &pointsToCheck)
 			}
 		}
 
 		if p[1]-1 >= 0 {
-			CheckEnergyValue([]int{p[0], p[1] - 1}, grid, flashes, pointsToCheck)
+			CheckEnergyValue([]int{p[0], p[1] - 1}, grid, flashes, &pointsToCheck)
 		}
 		if p[1]+1 < len(grid[0]) {
-			CheckEnergyValue([]int{p[0], p[1] + 1}, grid, flashes, pointsToCheck)
+			CheckEnergyValue([]int{p[0], p[1] + 1}, grid, flashes, &pointsToCheck)
 		}
 
 		if p[0]+1 < len(grid) {
 			if p[1]-1 >= 0 {
-				CheckEnergyValue([]int{p[0] + 1, p[1] - 1}, grid, flashes, pointsToCheck)
+				CheckEnergyValue([]int{p[0] + 1, p[1] - 1}, grid, flashes, &pointsToCheck)
 			}
-			CheckEnergyValue([]int{p[0] + 1, p[1]}, grid, flashes, pointsToCheck)
+			CheckEnergyValue([]int{p[0] + 1, p[1]}, grid, flashes, &pointsToCheck)
 			if p[1]+1 < len(grid[0]) {
-				CheckEnergyValue([]int{p[0] + 1, p[1] + 1}, grid, flashes, pointsToCheck)
+				CheckEnergyValue([]int{p[0] + 1, p[1] + 1}, grid, flashes, &pointsToCheck)
 			}
 		}
 	}
 }
 
 func CheckEnergyValue(pointer []int, grid map[int][]int, flashes map[string]int,
-	pointsToCheck *stack.Stack) {
+	pointsToCheck *Stack) {
 	key := fmt.Sprint(pointer)
 	if _, ok := flashes[key]; !ok {
 		if grid[pointer[0]][pointer[1]] == 9 {
@@ -150,5 +148,27 @@ func CheckEnergyValue(pointer []int, grid map[int][]int, flashes map[string]int,
 		} else {
 			grid[pointer[0]][pointer[1]]++
 		}
+	}
+}
+
+// Stack implementation
+type Stack [][]int
+
+func (s *Stack) Len() int {
+	return len(*s)
+}
+
+func (s *Stack) Push(point []int) {
+	*s = append(*s, point)
+}
+
+func (s *Stack) Pop() ([]int, bool) {
+	if s.Len() == 0 {
+		return nil, false
+	} else {
+		index := len(*s) - 1
+		element := (*s)[index]
+		*s = (*s)[:index]
+		return element, true
 	}
 }
